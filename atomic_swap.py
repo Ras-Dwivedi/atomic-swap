@@ -147,6 +147,54 @@ def add_transition_to_kripke(kripke):
     print(f"total transitions {count}")
     return count
 
+def label_bad_states(kripke):
+    """
+    labels all the bad state in the kripke structure
+    """
+    for state in kripke.states:
+        label_bad_state(kripke, state)
+
+def label_bad_state(kripke, unknown_state):
+    """
+    marks the state as the bad state if any of the future state reached by it is bad state
+    """
+    def dfs(state, visited_states):
+        """
+        returns True if any of the successor state is a bad state
+        else returns false
+        """
+        if state in visited_states:
+            return
+
+        visited_states.add(state)
+
+        if kripke.get_label(state) == "bad":
+            return True
+
+        for successor in kripke.get_successors(state):
+            if dfs(successor, visited_states):
+                return True
+
+        return False
+
+    visited_states = set()
+    if dfs(unknown_state, visited_states):
+        kripke.labels[unknown_state] = "bad"
+
+def count_bad_states(kripke):
+    """
+    counts the number of the bad states in the kripke KripkeStructure
+    @param
+        -kripke structure
+    @returns 
+        - number of the bad states
+    """
+
+    count = 0
+    for state in kripke.states:
+        if kripke.get_label(state) == "bad":
+            count = count+1
+    return count
 # Example usage:
 if __name__ == "__main__":
     # Create a Kripke structure
@@ -163,3 +211,10 @@ if __name__ == "__main__":
     print("Total states inserted:", total_states)
     total_transition = add_transition_to_kripke(kripke)
     print("total transitions inserted", total_transition)
+    print("labelling the bad states")
+    label_bad_states(kripke)
+    no_bad_states = count_bad_states(kripke)
+    # print(kripke)
+    print(f"numbers of the bad states as {no_bad_states}")
+    print(f"total number of the states are {total_states}")
+
