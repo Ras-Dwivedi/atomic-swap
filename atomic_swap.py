@@ -17,17 +17,17 @@ def add_states_to_kripke(kripke):
                                             label = "good"
                                         if s2 == 3:
                                             label = "bad"
-                                    # elif s1 ==1 :
-                                    #     if s2 == 3:
-                                    #         label = "bad"
-                                    # elif s1==3:
-                                    #     if s2 == 0:
-                                    #         label = "bad"
-                                    #     if s2 == 3:
-                                    #         label = "good"
-                                    # elif s2==1:
-                                    #     if s1 ==3:
-                                    #         label = "bad"
+                                    elif s1 ==1 :
+                                        if s2 == 3:
+                                            label = "bad"
+                                    elif s1==3:
+                                        if s2 == 0:
+                                            label = "bad"
+                                        if s2 == 3:
+                                            label = "good"
+                                    elif s2==1:
+                                        if s1 ==3:
+                                            label = "bad"
                                     else:
                                         label = 'unknown'
                                     kripke.add_state(state, label)
@@ -195,10 +195,19 @@ def is_valid_transition(from_state, to_state):
         if not s2 == new_s2:
             return False
 
+    #if contract is resolved, it should stop excuting
+    if s1 ==3:
+        if new_s1 != s1:
+            return False
+    if s2 == 3:
+        if new_s2 != s2:
+            return False
+
     # unless contract are deployed, no value can change:
     if s1 ==0 and s2 ==0:
         if new_a or new_b or new_x1 or new_x2 or new_y1 or new_y2:
             return False
+
 
     return True
 
@@ -227,7 +236,7 @@ def label_bad_states(kripke):
     """
     for state in kripke.states:
         label_bad_state(kripke, state)
-    no_bad_states = count_bad_states(kripke)
+    no_bad_states = kripke.count_states("bad")
     # print(kripke)
     print(f"numbers of the bad states as {no_bad_states}")
     print(f"total number of the states are {total_states}")
@@ -263,20 +272,53 @@ def label_bad_state(kripke, unknown_state):
         kripke.labels[unknown_state] = "bad"
 
 
-def count_bad_states(kripke):
+
+def label_good_states(kripke):
     """
-    counts the number of the bad states in the kripke KripkeStructure
-    @param
-        -kripke structure
-    @returns 
-        - number of the bad states
+    labels all the good state in the kripke structure
+    """
+    for state in kripke.states:
+        if kripke.get_label(state) == "good":
+            label_good_state(kripke, state)
+    no_good_states = kripke.count_states("good")
+    print(f"no of good states are {no_good_states}")
+    # return no_good_states
+
+def label_good_state(kripke, unknown_state):
+    """
+    marks the state as the good state if it can reach a good state in the future
+    a state is good if it cannot be marked as bad
     """
 
-    count = 0
-    for state in kripke.states:
-        if kripke.get_label(state) == "bad":
-            count = count+1
-    return count
+    # a state marked as bad is already bad
+    if kripke.get_label(unknown_state)=="bad":
+        return False
+
+    def dfs(state, visited_states):
+        """
+        returns True if any of the successor state is a good state
+        else returns false
+        """
+        if state in visited_states:
+            return
+
+        visited_states.add(state)
+
+        #if the state itself is good return True
+        if kripke.get_label(state) == "good":
+            # print(f'reached state {state}, which is good')
+            return True
+
+        #if the any of the sucessor is good, label it good
+        for successor in kripke.get_successors(state):
+            if dfs(successor, visited_states):
+                return True
+
+        return False
+
+    visited_states = set()
+    if dfs(unknown_state, visited_states):
+        kripke.labels[unknown_state] = "good"
 
 
 
@@ -291,7 +333,27 @@ def print_state(state):
     print("\n")
 
 
+def stats(kripke):
+    good_states_count = kripke.count_states("good")
+    bad_states_count = kripke.count_states("bad")
+    unknown_states_count = kripke.count_states("unknown")
 
+    print(f'Good states: {good_states_count}')
+    print(f'Bad states: {bad_states_count}')
+    print(f'unknown states: {unknown_states_count}')
+    print(f"total states {good_states_count+bad_states_count+unknown_states_count}")
+
+
+
+def count_states_with_labels(kripke, states_list):
+    label_counts = {"good": 0, "bad": 0, "unknown": 0}
+
+    for state in states_list:
+        label = kripke.get_label(state)
+        if label in label_counts:
+            label_counts[label] += 1
+
+    return label_counts
 
 # Example usage:
 if __name__ == "__main__":
@@ -303,7 +365,7 @@ if __name__ == "__main__":
 
 
     # Print the Kripke structure
-    print(kripke)
+    # print(kripke)
 
     # Output the total number of states inserted
     print("Total states inserted:", total_states)
@@ -311,19 +373,31 @@ if __name__ == "__main__":
     print("total transitions inserted", total_transition)
     print("labelling the bad states")
     label_bad_states(kripke)
+    label_good_states(kripke)
     
+    stats(kripke)
+    print(kripke.get_label((0,0,0,0,0,0,0,0)))
+
+    # states_reachable = kripke.find_reachable_states((0,0,0,0,0,0,0,0))
+    # print(states_reachable)
+    # print(count_states_with_labels(kripke,states_reachable))
+
+    # good_states = kripke.get_states_with_label("unknown")
+    # for state in good_states:
+    #     print(state)
+
     # label_bad_state(kripke,(0,0,0,0,0,0,0,0))
     # print(kripke.get_label((0,0,0,0,0,0,0,0)))
     # # print(kripke.get_successors((0,0,0,0,0,0,0,0)))
 
-    try:
-        s1 = (0,0,0,0,0,0,0,0)
-        # s2 = (0,0,0,0,0,0,0,3)
-        s2 =  (1, 1, 1, 1, 1, 1, 0, 3)
-        path = kripke.find_transition_path(s1, s2)
-        for state in path:
-            print_state(state)
-        # print(path)
-    except Exception as e:
-        print("no such path found")
+    # try:
+    #     s1 = (0,0,0,0,0,0,0,0)
+    #     # s2 = (0,0,0,0,0,0,0,3)
+    #     s2 =  (1, 1, 1, 1, 1, 1, 0, 3)
+    #     path = kripke.find_transition_path(s1, s2)
+    #     for state in path:
+    #         print_state(state)
+    #     # print(path)
+    # except Exception as e:
+    #     print("no such path found")
 

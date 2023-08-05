@@ -69,3 +69,46 @@ class KripkeStructure:
             return path
         else:
             raise PathNotFoundError("Path not found from the first state to the second state.")
+
+    def count_states(self, label):
+        """
+        counts the number of the states with the label in the KripkeStructure
+
+        @returns 
+            - number of the state with the given label
+        """
+
+        count = 0
+        for state in self.states:
+            if self.get_label(state) == label:
+                count = count+1
+        return count
+
+    def get_states_with_label(self, target_label):
+        states_with_label = []
+
+        for state in self.states:
+            label = self.get_label(state)
+            if label == target_label:
+                states_with_label.append(state)
+
+        return states_with_label
+
+    def find_reachable_states(self, state):
+        # Initialize a stack for DFS and a set to store visited states
+        stack = []
+        visited = set()
+
+        stack.append(state)
+        visited.add(state)
+
+        # Perform DFS to find reachable states
+        while stack:
+            current_state = stack.pop()
+            successors = self.get_successors(current_state)
+            for successor in successors:
+                if successor not in visited:
+                    visited.add(successor)
+                    stack.append(successor)
+
+        return visited
