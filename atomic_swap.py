@@ -147,26 +147,9 @@ def is_valid_transition(from_state, to_state):
 
     if s2 == 1 and new_s2 == 3:
         return False
-    # # singular changes
-    # # why are they even needed
-    # if len(changes) == 1:
-    #     # x1 can always change from 0 to 1
-    #     if x1 == 0 and new_x1 ==1:
-    #         return True
+ 
 
-    #     # y1 can always change from 0 to 1
-    #     if y1 == 0 and new_y1 == 1:
-    #         return True      
-
-    #     # s1 can always go from 0 to 1
-    #     if s1 == 0 and new_s1 == 1:
-    #         return True
-
-    #     # s2 can always go from 0 to 1
-    #     if s2 == 0 and new_s2 == 1:
-    #         return True
-
-    # practical changes
+    # practical cases
 
     # a is revealed only when the contract is quit
     if (a==0 and new_a ==1):
@@ -186,6 +169,15 @@ def is_valid_transition(from_state, to_state):
 
     if y2==0 and new_y2 == 1:
         if not new_y1 ==1:
+            return False
+
+    # x2/y2 is revealed only if y1/x1 has already been revealed
+    if x2 == 0 and new_x2 ==1:
+        if y1 ==0:
+            return False
+
+    if y2 == 0 and new_y2 ==1:
+        if x1 ==0:
             return False
 
     return True
