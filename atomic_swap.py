@@ -29,6 +29,124 @@ def add_states_to_kripke(kripke):
 
     return total_states_inserted
 
+def get_changed_variables(from_state, to_state):
+    """
+    returns the changes variables as the dictionary containing the from and the to state
+    """
+    changed_variables = {}
+
+    # Check for changes in each component of the states
+    for i, (from_value, to_value) in enumerate(zip(from_state, to_state)):
+        if from_value != to_value:
+            variable_name = ['a', 'b', 'x1', 'x2', 'y1', 'y2', 's1', 's2'][i]
+            changed_variables[variable_name] = (from_value, to_value)
+
+    return changed_variables
+
+def is_valid_transition(from_state, to_state):
+    """
+    the idea is that there are only certain set of the transition possible. 
+    all other transition needs to be avoided. 
+    default response is true. we are checking certain false transition
+    """
+    a, b, x1, x2, y1, y2, s1, s2 = from_state
+    new_a, new_b, new_x1, new_x2, new_y1, new_y2, new_s1, new_s2 = to_state
+
+    changes = get_changed_variables(from_state,to_state)
+    keys = list(changes)
+
+    #changes prohibited
+
+    # x1 cannot change from 1 to 0
+    if x1 == 1 and new_x1 == 0:
+        return False
+
+    # y1 cannot change from 1 to 0
+    if y1 == 1 and new_y1 == 0:
+        return False
+
+    # x2 cannot change from 1 to 0
+    if x2 == 1 and new_x2 == 0:
+        return False
+
+    # y2 cannot change from 1 to 0
+    if y2 == 1 and new_y2 == 0:
+        return False
+
+    # if s1 goes from 1 to 0, then a must also become 1
+    if s1 == 1 and new_s1 == 0 and new_a != 1:
+        return False
+
+    # if s2 goes from 1 to 0, then b must also become 1
+    if s2 == 1 and new_s2 == 0 and new_b != 1:
+        return False
+
+    # if s1 goes from 1 to 2, then x1, y1, y2 must also become 1
+    if s1 == 1 and new_s1 == 2 and (new_x1, new_y1, new_y2) != (1, 1, 1):
+        return False
+
+    # if s2 goes from 1 to 2, then y1, x1, x2 must also become 1
+    if s2 == 1 and new_s2 == 2 and (new_y1, new_x1, new_x2) != (1, 1, 1):
+        return False
+
+
+    # if s1 goes from 2 to 0, then b must become 1
+    if s1 == 2 and new_s1 == 0 and new_b != 1:
+        return False
+
+    # if s2 goes from 2 to 0, then a must become 1
+    if s2 == 2 and new_s2 == 0 and new_a != 1:
+        return False
+
+    # if s1 goes from 2 to 3, then x1, x2, y1, y2 must also become 1
+    if s1 == 2 and new_s1 == 3 and (x1, x2, y1, y2) != (1, 1, 1, 1):
+        return False
+
+    # if s2 goes from 2 to 3, then x1, x2, y1, y2 must also become 1
+    if s2 == 2 and new_s2 == 3 and (x1, x2, y1, y2) != (1, 1, 1, 1):
+        return False
+
+    return True
+    # # singular changes
+    # # why are they even needed
+    # if len(changes) == 1:
+    #     # x1 can always change from 0 to 1
+    #     if x1 == 0 and new_x1 ==1:
+    #         return True
+
+    #     # y1 can always change from 0 to 1
+    #     if y1 == 0 and new_y1 == 1:
+    #         return True      
+
+    #     # s1 can always go from 0 to 1
+    #     if s1 == 0 and new_s1 == 1:
+    #         return True
+
+    #     # s2 can always go from 0 to 1
+    #     if s2 == 0 and new_s2 == 1:
+    #         return True
+
+
+
+
+
+    # No other kind of transitions allowed
+    if new_s1 not in {0, 1, 2, 3} or new_s2 not in {0, 1, 2, 3}:
+        return False
+
+def add_transition_to_kripke(kripke):
+    count = 0
+    for from_state in kripke.states:
+        for to_state in kripke.states:
+            # Apply the transition rules
+            if is_valid_transition(from_state,to_state):
+
+                # If all rules pass, add the transition
+                kripke.transitions[from_state].add(to_state)
+                count = count +1
+    print(f"total transitions {count}")
+    return count
+
 # Example usage:
 if __name__ == "__main__":
     # Create a Kripke structure
@@ -37,8 +155,11 @@ if __name__ == "__main__":
     # Add states to the Kripke structure
     total_states = add_states_to_kripke(kripke)
 
+
     # Print the Kripke structure
     print(kripke)
 
     # Output the total number of states inserted
     print("Total states inserted:", total_states)
+    total_transition = add_transition_to_kripke(kripke)
+    print("total transitions inserted", total_transition)
