@@ -363,16 +363,6 @@ def count_states_with_labels(kripke, states_list):
 
     return label_counts
 
-# def bad_reason(kripke, state):
-#     """
-#     prints the reason for  the state to be bad"
-#     """
-#     bad_states = [
-#                     (0,0,0,0,0,0,0,0),
-#                     (0,0,0,0,0,0,0,0),
-#                     (0,0,0,0,0,0,0,0),
-#                     (0,0,0,0,0,0,0,0),
-                # ]
 # Example usage:
 if __name__ == "__main__":
     # Create a Kripke structure
@@ -405,28 +395,5 @@ if __name__ == "__main__":
     print(states_reachable)
     print(count_states_with_labels(kripke,states_reachable))
 
-    unknown_states = [state for state in states_reachable if kripke.get_label(state)=="unknown"]
-    print("unknown states ")
-    print(unknown_states)
-
-    print("--------------")
-    interesting_state = (0, 1, 1, 0, 1, 0, 1, 0)
-    s = kripke.find_reachable_states(interesting_state)
-    print(f"state inquired {interesting_state}")
-    print(s)
-    print(count_states_with_labels(kripke,s))
-    # label_bad_state(kripke,(0,0,0,0,0,0,0,0))
-    # print(kripke.get_label((0,0,0,0,0,0,0,0)))
-    # # print(kripke.get_successors((0,0,0,0,0,0,0,0)))
-
-    try:
-        s1 = (0,0,0,0,0,0,0,0)
-        # s2 = (0,0,0,0,0,0,0,3)
-        s2 =  (1, 1, 1, 1, 1, 1, 0, 3)
-        path = kripke.find_transition_path(s1, s2)
-        for state in path:
-            print_state(state)
-        # print(path)
-    except Exception as e:
-        print("no such path found")
+   
 
