@@ -287,8 +287,7 @@ def label_good_states(kripke):
     labels all the good state in the kripke structure
     """
     for state in kripke.states:
-        if kripke.get_label(state) == "good":
-            label_good_state(kripke, state)
+        label_good_state(kripke, state)
     no_good_states = kripke.count_states("good")
     print(f"no of good states are {no_good_states}")
     # return no_good_states
@@ -394,6 +393,7 @@ if __name__ == "__main__":
     print("labelling the bad states")
     label_bad_states(kripke)
     label_good_states(kripke)
+    label_good_states(kripke)
     
     stats(kripke)
     print(kripke.get_label((0,0,0,0,0,0,0,0)))
@@ -401,14 +401,20 @@ if __name__ == "__main__":
 
     #if the state is bad, print the path
 
-    # states_reachable = kripke.find_reachable_states((0,0,0,0,0,0,0,0))
-    # print(states_reachable)
-    # print(count_states_with_labels(kripke,states_reachable))
+    states_reachable = kripke.find_reachable_states((0,0,0,0,0,0,0,0))
+    print(states_reachable)
+    print(count_states_with_labels(kripke,states_reachable))
 
-    # good_states = kripke.get_states_with_label("unknown")
-    # for state in good_states:
-    #     print(state)
+    unknown_states = [state for state in states_reachable if kripke.get_label(state)=="unknown"]
+    print("unknown states ")
+    print(unknown_states)
 
+    print("--------------")
+    interesting_state = (0, 1, 1, 0, 1, 0, 1, 0)
+    s = kripke.find_reachable_states(interesting_state)
+    print(f"state inquired {interesting_state}")
+    print(s)
+    print(count_states_with_labels(kripke,s))
     # label_bad_state(kripke,(0,0,0,0,0,0,0,0))
     # print(kripke.get_label((0,0,0,0,0,0,0,0)))
     # # print(kripke.get_successors((0,0,0,0,0,0,0,0)))
