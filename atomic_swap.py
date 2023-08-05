@@ -15,23 +15,32 @@ def add_states_to_kripke(kripke):
                                     if s1==0:
                                         if s2==0:
                                             label = "good"
-                                        if s2 == 3:
+                                        elif s2 == 3:
                                             label = "bad"
+                                        else:
+                                            label = "unknown"
                                     elif s1 ==1 :
                                         if s2 == 3:
                                             label = "bad"
+                                        else:
+                                            label = "unknown"
                                     elif s1==3:
                                         if s2 == 0:
                                             label = "bad"
-                                        if s2 == 3:
+                                        elif s2 == 3:
                                             label = "good"
+                                        else:
+                                            label = "unknown"
                                     elif s2==1:
                                         if s1 ==3:
                                             label = "bad"
+                                        else:
+                                            label = "unknown"
                                     else:
                                         label = 'unknown'
                                     kripke.add_state(state, label)
                                     total_states_inserted += 1
+
 
     return total_states_inserted
 
@@ -355,6 +364,16 @@ def count_states_with_labels(kripke, states_list):
 
     return label_counts
 
+# def bad_reason(kripke, state):
+#     """
+#     prints the reason for  the state to be bad"
+#     """
+#     bad_states = [
+#                     (0,0,0,0,0,0,0,0),
+#                     (0,0,0,0,0,0,0,0),
+#                     (0,0,0,0,0,0,0,0),
+#                     (0,0,0,0,0,0,0,0),
+                # ]
 # Example usage:
 if __name__ == "__main__":
     # Create a Kripke structure
@@ -362,6 +381,7 @@ if __name__ == "__main__":
 
     # Add states to the Kripke structure
     total_states = add_states_to_kripke(kripke)
+    print(kripke.get_states_with_label("bad"))
 
 
     # Print the Kripke structure
@@ -378,6 +398,9 @@ if __name__ == "__main__":
     stats(kripke)
     print(kripke.get_label((0,0,0,0,0,0,0,0)))
 
+
+    #if the state is bad, print the path
+
     # states_reachable = kripke.find_reachable_states((0,0,0,0,0,0,0,0))
     # print(states_reachable)
     # print(count_states_with_labels(kripke,states_reachable))
@@ -390,14 +413,14 @@ if __name__ == "__main__":
     # print(kripke.get_label((0,0,0,0,0,0,0,0)))
     # # print(kripke.get_successors((0,0,0,0,0,0,0,0)))
 
-    # try:
-    #     s1 = (0,0,0,0,0,0,0,0)
-    #     # s2 = (0,0,0,0,0,0,0,3)
-    #     s2 =  (1, 1, 1, 1, 1, 1, 0, 3)
-    #     path = kripke.find_transition_path(s1, s2)
-    #     for state in path:
-    #         print_state(state)
-    #     # print(path)
-    # except Exception as e:
-    #     print("no such path found")
+    try:
+        s1 = (0,0,0,0,0,0,0,0)
+        # s2 = (0,0,0,0,0,0,0,3)
+        s2 =  (1, 1, 1, 1, 1, 1, 0, 3)
+        path = kripke.find_transition_path(s1, s2)
+        for state in path:
+            print_state(state)
+        # print(path)
+    except Exception as e:
+        print("no such path found")
 
