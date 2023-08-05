@@ -1,5 +1,5 @@
 from KripkeStructure import KripkeStructure
-
+import time
 def add_states_to_kripke(kripke):
     total_states_inserted = 0
 
@@ -17,11 +17,17 @@ def add_states_to_kripke(kripke):
                                             label = "good"
                                         if s2 == 3:
                                             label = "bad"
-                                    elif s1==3:
-                                        if s2 == 0:
-                                            label = "bad"
-                                        if s2 == 3:
-                                            label = "good"
+                                    # elif s1 ==1 :
+                                    #     if s2 == 3:
+                                    #         label = "bad"
+                                    # elif s1==3:
+                                    #     if s2 == 0:
+                                    #         label = "bad"
+                                    #     if s2 == 3:
+                                    #         label = "good"
+                                    # elif s2==1:
+                                    #     if s1 ==3:
+                                    #         label = "bad"
                                     else:
                                         label = 'unknown'
                                     kripke.add_state(state, label)
@@ -57,6 +63,7 @@ def is_valid_transition(from_state, to_state):
 
     #changes prohibited
 
+    # known secrets cannote b forgetton
     # x1 cannot change from 1 to 0
     if x1 == 1 and new_x1 == 0:
         return False
@@ -73,6 +80,15 @@ def is_valid_transition(from_state, to_state):
     if y2 == 1 and new_y2 == 0:
         return False
 
+    # a cannot change from 1 to 0
+    if a == 1 and new_a == 0:
+        return False
+    
+    # b cannot change from 1 to 0
+    if b == 1 and new_b == 0:
+        return False
+    
+    #quit is only possible when the secret is revealed
     # if s1 goes from 1 to 0, then a must also become 1
     if s1 == 1 and new_s1 == 0 and new_a != 1:
         return False
@@ -81,6 +97,7 @@ def is_valid_transition(from_state, to_state):
     if s2 == 1 and new_s2 == 0 and new_b != 1:
         return False
 
+    # freezing is only possible when the secret are known and revealed    
     # if s1 goes from 1 to 2, then x1, y1, y2 must also become 1
     if s1 == 1 and new_s1 == 2 and (new_x1, new_y1, new_y2) != (1, 1, 1):
         return False
@@ -90,6 +107,7 @@ def is_valid_transition(from_state, to_state):
         return False
 
 
+    # to abort, one must know the secret of the other party
     # if s1 goes from 2 to 0, then b must become 1
     if s1 == 2 and new_s1 == 0 and new_b != 1:
         return False
@@ -98,6 +116,7 @@ def is_valid_transition(from_state, to_state):
     if s2 == 2 and new_s2 == 0 and new_a != 1:
         return False
 
+    # to get the coin, all the secret must be revealed
     # if s1 goes from 2 to 3, then x1, x2, y1, y2 must also become 1
     if s1 == 2 and new_s1 == 3 and (x1, x2, y1, y2) != (1, 1, 1, 1):
         return False
@@ -106,7 +125,28 @@ def is_valid_transition(from_state, to_state):
     if s2 == 2 and new_s2 == 3 and (x1, x2, y1, y2) != (1, 1, 1, 1):
         return False
 
-    return True
+    # from freeze on can only abort (return to 0) or resolve (move to 3)
+    # not movement from 2 to 1
+    if s1 == 2 and new_s1 == 1:
+        return False
+
+    if s2 == 2 and new_s2 == 1:
+        return False
+
+    # from 0 one can only move to 1
+
+    if s1 == 0 and not (new_s1 == 1 or new_s1==0):
+        return False
+
+    if s2 == 0 and not (new_s2 == 1 or new_s2==0):
+        return False
+
+    # from 1 one cannot move to 3 directly
+    if s1 == 1 and new_s1 == 3:
+        return False
+
+    if s2 == 1 and new_s2 == 3:
+        return False
     # # singular changes
     # # why are they even needed
     # if len(changes) == 1:
@@ -126,13 +166,35 @@ def is_valid_transition(from_state, to_state):
     #     if s2 == 0 and new_s2 == 1:
     #         return True
 
+    # practical changes
+
+    # a is revealed only when the contract is quit
+    if (a==0 and new_a ==1):
+        # print(from_state,to_state)
+        # time.sleep(10)
+        if not (s1 ==1 and new_s1 == 0):
+            return False
+
+    if (b==0 and new_b ==1):
+        if not (s2 ==1 and new_s2 == 0):
+            return False
+
+    #if x2/y2 is revealed, either the x1/y1 is revealed in the same transaction, or the already revealed
+    if x2==0 and new_x2 == 1:
+        if not new_x1 ==1:
+            return False
+
+    if y2==0 and new_y2 == 1:
+        if not new_y1 ==1:
+            return False
+
+    return True
 
 
 
-
-    # No other kind of transitions allowed
-    if new_s1 not in {0, 1, 2, 3} or new_s2 not in {0, 1, 2, 3}:
-        return False
+    # # No other kind of transitions allowed
+    # if new_s1 not in {0, 1, 2, 3} or new_s2 not in {0, 1, 2, 3}:
+    #     return False
 
 def add_transition_to_kripke(kripke):
     count = 0
@@ -153,6 +215,10 @@ def label_bad_states(kripke):
     """
     for state in kripke.states:
         label_bad_state(kripke, state)
+    no_bad_states = count_bad_states(kripke)
+    # print(kripke)
+    print(f"numbers of the bad states as {no_bad_states}")
+    print(f"total number of the states are {total_states}")
 
 def label_bad_state(kripke, unknown_state):
     """
@@ -168,9 +234,12 @@ def label_bad_state(kripke, unknown_state):
 
         visited_states.add(state)
 
+        #if the state itself is bad return True
         if kripke.get_label(state) == "bad":
+            # print(f'reached state {state}, which is bad')
             return True
 
+        #if the any of the sucessor is bad, label it bad
         for successor in kripke.get_successors(state):
             if dfs(successor, visited_states):
                 return True
@@ -180,6 +249,13 @@ def label_bad_state(kripke, unknown_state):
     visited_states = set()
     if dfs(unknown_state, visited_states):
         kripke.labels[unknown_state] = "bad"
+        # try:
+        #     path = find_transition_path(unknown_state,(1,1,1,1,1,1,3,0))
+        #     print(path)
+        # except Exception as e:
+        #     print("no path found")
+        # print(f"state {unknown_state} labelled as bad")
+
 
 def count_bad_states(kripke):
     """
@@ -195,6 +271,43 @@ def count_bad_states(kripke):
         if kripke.get_label(state) == "bad":
             count = count+1
     return count
+
+
+class PathNotFoundError(Exception):
+    pass
+
+def find_transition_path(kripke, from_state, to_state):
+    def dfs(state, visited_states, path):
+        if state in visited_states:
+            return False
+
+        visited_states.add(state)
+        path.append(state)
+
+        if state == to_state:
+            return True
+
+        for successor in kripke.get_successors(state):
+            if dfs(successor, visited_states, path):
+                return True
+
+        path.pop()
+        return False
+
+    visited_states = set()
+    path = []
+    if dfs(from_state, visited_states, path):
+        return path
+    else:
+        raise PathNotFoundError("Path not found from the first state to the second state.")
+
+# Example usage:
+
+
+
+
+
+
 # Example usage:
 if __name__ == "__main__":
     # Create a Kripke structure
@@ -213,8 +326,18 @@ if __name__ == "__main__":
     print("total transitions inserted", total_transition)
     print("labelling the bad states")
     label_bad_states(kripke)
-    no_bad_states = count_bad_states(kripke)
-    # print(kripke)
-    print(f"numbers of the bad states as {no_bad_states}")
-    print(f"total number of the states are {total_states}")
+    
+    # label_bad_state(kripke,(0,0,0,0,0,0,0,0))
+    # print(kripke.get_label((0,0,0,0,0,0,0,0)))
+    # # print(kripke.get_successors((0,0,0,0,0,0,0,0)))
+
+    try:
+        s1 = (0,0,0,0,0,0,0,0)
+        # s2 = (0,0,0,0,0,0,0,3)
+        s2 =  (1, 1, 1, 1, 1, 1, 0, 3)
+        path = find_transition_path(kripke, s1, s2)
+        print(path)
+    except Exception as e:
+        print("no such path found")
+
 
