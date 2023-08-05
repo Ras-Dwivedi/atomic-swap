@@ -5,6 +5,10 @@ This class models the generic kripke structure with all the states and the trans
 date : 04/08/2023
 
 """
+
+class PathNotFoundError(Exception):
+    pass
+
 class KripkeStructure:
     def __init__(self):
         self.states = set()
@@ -40,3 +44,28 @@ class KripkeStructure:
                 predecessor_states.add(from_state)
 
         return predecessor_states
+
+    def find_transition_path(self, from_state, to_state):
+        def dfs(state, visited_states, path):
+            if state in visited_states:
+                return False
+
+            visited_states.add(state)
+            path.append(state)
+
+            if state == to_state:
+                return True
+
+            for successor in self.get_successors(state):
+                if dfs(successor, visited_states, path):
+                    return True
+
+            path.pop()
+            return False
+
+        visited_states = set()
+        path = []
+        if dfs(from_state, visited_states, path):
+            return path
+        else:
+            raise PathNotFoundError("Path not found from the first state to the second state.")

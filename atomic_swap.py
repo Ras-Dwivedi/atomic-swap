@@ -1,4 +1,4 @@
-from KripkeStructure import KripkeStructure
+from KripkeStructure import KripkeStructure, PathNotFoundError
 import time
 def add_states_to_kripke(kripke):
     total_states_inserted = 0
@@ -261,12 +261,6 @@ def label_bad_state(kripke, unknown_state):
     visited_states = set()
     if dfs(unknown_state, visited_states):
         kripke.labels[unknown_state] = "bad"
-        # try:
-        #     path = find_transition_path(unknown_state,(1,1,1,1,1,1,3,0))
-        #     print(path)
-        # except Exception as e:
-        #     print("no path found")
-        # print(f"state {unknown_state} labelled as bad")
 
 
 def count_bad_states(kripke):
@@ -285,33 +279,7 @@ def count_bad_states(kripke):
     return count
 
 
-class PathNotFoundError(Exception):
-    pass
 
-def find_transition_path(kripke, from_state, to_state):
-    def dfs(state, visited_states, path):
-        if state in visited_states:
-            return False
-
-        visited_states.add(state)
-        path.append(state)
-
-        if state == to_state:
-            return True
-
-        for successor in kripke.get_successors(state):
-            if dfs(successor, visited_states, path):
-                return True
-
-        path.pop()
-        return False
-
-    visited_states = set()
-    path = []
-    if dfs(from_state, visited_states, path):
-        return path
-    else:
-        raise PathNotFoundError("Path not found from the first state to the second state.")
 
 # Example usage:
 
@@ -352,7 +320,7 @@ if __name__ == "__main__":
         s1 = (0,0,0,0,0,0,0,0)
         # s2 = (0,0,0,0,0,0,0,3)
         s2 =  (1, 1, 1, 1, 1, 1, 0, 3)
-        path = find_transition_path(kripke, s1, s2)
+        path = kripke.find_transition_path(s1, s2)
         for state in path:
             print_state(state)
         # print(path)
