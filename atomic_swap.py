@@ -171,14 +171,20 @@ def is_valid_transition(from_state, to_state):
         if not new_y1 ==1:
             return False
 
+    #why is this condition forced, and not implicit
     # x2/y2 is revealed only if y1/x1 has already been revealed
+    # if x2/y2 is revealed, then the contract should be frozen
     if x2 == 0 and new_x2 ==1:
         if y1 ==0:
             return False
+        if not (s2==1 and new_s2 ==2):
+            return False 
 
     if y2 == 0 and new_y2 ==1:
         if x1 ==0:
             return False
+        if not (s1==1 and new_s1 ==2):
+            return False 
 
     return True
 
@@ -295,7 +301,12 @@ def find_transition_path(kripke, from_state, to_state):
 
 # Example usage:
 
-
+def print_state(state):
+    names = ['a', 'b', 'x1', 'x2', 'y1', 'y2', 's1', 's2']
+    # state = enumerate(_state)
+    for i in range(len(names)):
+        print(f' {names[i]}={state[i] }', end="")
+    print("\n")
 
 
 
@@ -328,8 +339,9 @@ if __name__ == "__main__":
         # s2 = (0,0,0,0,0,0,0,3)
         s2 =  (1, 1, 1, 1, 1, 1, 0, 3)
         path = find_transition_path(kripke, s1, s2)
-        print(path)
+        for state in path:
+            print_state(state)
+        # print(path)
     except Exception as e:
         print("no such path found")
-
 
