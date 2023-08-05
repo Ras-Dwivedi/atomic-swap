@@ -1,3 +1,10 @@
+"""
+This class models the generic kripke structure with all the states and the transition relations
+
+@author: Ras Dwivedi
+date : 04/08/2023
+
+"""
 class KripkeStructure:
     def __init__(self):
         self.states = set()
@@ -24,3 +31,12 @@ class KripkeStructure:
 
     def __str__(self):
         return f"States: {self.states}\nTransitions: {self.transitions}\nLabels: {self.labels}"
+
+    def get_predecessor(self, state):
+        predecessor_states = set()
+
+        for from_state, successors in self.transitions.items():
+            if state in successors:
+                predecessor_states.add(from_state)
+
+        return predecessor_states
