@@ -186,6 +186,20 @@ def is_valid_transition(from_state, to_state):
         if not (s1==1 and new_s1 ==2):
             return False 
 
+    # if a or b is revealed, the contract should stop executing further
+    if a ==1 :
+        if not s1 == new_s1:
+            return False
+
+    if b ==1:
+        if not s2 == new_s2:
+            return False
+
+    # unless contract are deployed, no value can change:
+    if s1 ==0 and s2 ==0:
+        if new_a or new_b or new_x1 or new_x2 or new_y1 or new_y2:
+            return False
+
     return True
 
 
