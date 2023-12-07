@@ -1,0 +1,48 @@
+@startuml AtomicSwapProtocol
+
+participant Alice
+participant Bob
+
+note over Alice, Bob: Secret Generation and Hash Sharing
+Alice -> Bob: Share Hash of x1, x2, a
+Bob -> Alice: Share Hash of y1, y2, b
+
+note over Alice: Alice's Contract Deployment
+Alice -> DollarNet: Deploy Smart Contract
+Alice -> DollarNet: Lock Asset (1 Dollar)
+Alice -> DollarNet: Initialize with Hashes
+
+note over Bob: Bob's Contract Deployment
+Bob -> EuroNet: Deploy Smart Contract
+Bob -> EuroNet: Lock Asset (1 Euro)
+Bob -> EuroNet: Initialize with Hashes
+
+note over Alice, Bob: Secret Exchange
+Alice -> Bob: Share Secret x1
+Bob -> Alice: Share Secret y1
+
+note over Bob: Freezing the Assets
+Bob -> Alice: Call 'freeze' function
+Alice -> DollarNet: Reveal y1 and y2
+
+note over Alice: Asset Claim by Alice
+Alice -> Bob: Call 'resolve' function
+Alice -> EuroNet: Provide y1, y2, x1, x2
+Alice -> EuroNet: Claim Bob's asset (1 Euro)
+
+note over Bob: Asset Claim by Bob
+Bob -> Alice: Call 'resolve' function
+Bob -> DollarNet: Provide x1, x2, y1, y2
+Bob -> DollarNet: Claim Alice's asset (1 Dollar)
+
+note over Bob: Quitting the Swap
+Bob -> Alice: Call 'quit' function
+Bob -> DollarNet: Reclaim Asset (1 Dollar)
+
+note over Alice: Aborting the Swap
+Alice -> DollarNet: Call 'abort' function
+Alice -> DollarNet: Provide a, b
+Alice -> DollarNet: Reclaim Asset (1 Dollar)
+
+@enduml
+
