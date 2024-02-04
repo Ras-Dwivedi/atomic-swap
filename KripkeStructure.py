@@ -1,5 +1,5 @@
 """
-This class models the generic kripke structure with all the states and the transition relations
+This class models the generic Kripke structure with all the states and the transition relations
 
 @author: Ras Dwivedi
 date : 04/08/2023

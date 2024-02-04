@@ -2,6 +2,12 @@
 
 this repo aims to create the kripke structure for the atomic swaps and then try validate the kripke structure,
 
+# How to run
+Execute
+```
+python atomic_swap.py
+```
+And it should return the result on the terminal
 # Current smart contracts and flow
 ## Deploy
 Deploys the contract
