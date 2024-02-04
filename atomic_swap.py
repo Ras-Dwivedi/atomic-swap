@@ -108,11 +108,11 @@ def is_valid_transition(from_state, to_state):
 
     # freezing is only possible when the secret are known and revealed    
     # if s1 goes from 1 to 2, then x1, y1, y2 must also become 1
-    if s1 == 1 and new_s1 == 2 and (new_x1, new_y1, new_y2) != (1, 1, 1):
+    if s1 == 1 and new_s1 == 2 and (x1, new_y1, new_y2) != (1, 1, 1):
         return False
 
     # if s2 goes from 1 to 2, then y1, x1, x2 must also become 1
-    if s2 == 1 and new_s2 == 2 and (new_y1, new_x1, new_x2) != (1, 1, 1):
+    if s2 == 1 and new_s2 == 2 and (y1, new_x1, new_x2) != (1, 1, 1):
         return False
 
 
@@ -127,21 +127,17 @@ def is_valid_transition(from_state, to_state):
 
     # to get the coin, all the secret must be revealed
     # if s1 goes from 2 to 3, then x1, x2, y1, y2 must also become 1
+    # This needs rechecking
     if s1 == 2 and new_s1 == 3 and (x1, x2, y1, y2) != (1, 1, 1, 1):
         return False
 
     # if s2 goes from 2 to 3, then x1, x2, y1, y2 must also become 1
+    # This needs rechecking
     if s2 == 2 and new_s2 == 3 and (x1, x2, y1, y2) != (1, 1, 1, 1):
         return False
 
-    # from freeze on can only abort (return to 0) or resolve (move to 3)
-    # not movement from 2 to 1
-    if s1 == 2 and new_s1 == 1:
-        return False
 
-    if s2 == 2 and new_s2 == 1:
-        return False
-
+    # Allowed states from given states
     # from 0 one can only move to 1
 
     if s1 == 0 and not (new_s1 == 1 or new_s1==0):
@@ -157,28 +153,46 @@ def is_valid_transition(from_state, to_state):
     if s2 == 1 and new_s2 == 3:
         return False
  
+     # from freeze on can only abort (return to 0) or resolve (move to 3)
+    # not movement from 2 to 1
+    if s1 == 2 and new_s1 == 1:
+        return False
+
+    if s2 == 2 and new_s2 == 1:
+        return False
+
+    #if contract is resolved, it should stop excuting
+    if s1 ==3:
+        if new_s1 != 3:
+            return False
+    if s2 == 3:
+        if new_s2 != 3:
+            return False
+
 
     # practical cases
 
     # a is revealed only when the contract is quit
+    #needs checking
     if (a==0 and new_a ==1):
         # print(from_state,to_state)
-        # time.sleep(10)
-        if not (s1 ==1 and new_s1 == 0):
+        # if not (s1 ==1 and new_s1 == 0):
+        if not (new_s1 == 0):
             return False
 
     if (b==0 and new_b ==1):
-        if not (s2 ==1 and new_s2 == 0):
+        # if not (s2 ==1 and new_s2 == 0):
+        if not (new_s2 == 0):
             return False
 
     #if x2/y2 is revealed, either the x1/y1 is revealed in the same transaction, or the already revealed
-    if x2==0 and new_x2 == 1:
-        if not new_x1 ==1:
-            return False
+    # if x2==0 and new_x2 == 1:
+    #     if not new_x1 ==1:
+    #         return False
 
-    if y2==0 and new_y2 == 1:
-        if not new_y1 ==1:
-            return False
+    # if y2==0 and new_y2 == 1:
+    #     if not new_y1 ==1:
+    #         return False
 
     #why is this condition forced, and not implicit
     # x2/y2 is revealed only if y1/x1 has already been revealed
@@ -197,25 +211,17 @@ def is_valid_transition(from_state, to_state):
 
     # if a or b is revealed, the contract should stop executing further
     if a ==1 :
-        if not s1 == new_s1:
+        if not new_s1 == 0:
             return False
 
     if b ==1:
-        if not s2 == new_s2:
-            return False
-
-    #if contract is resolved, it should stop excuting
-    if s1 ==3:
-        if new_s1 != s1:
-            return False
-    if s2 == 3:
-        if new_s2 != s2:
+        if not new_s2 == 0:
             return False
 
     # unless contract are deployed, no value can change:
-    if s1 ==0 and s2 ==0:
-        if new_a or new_b or new_x1 or new_x2 or new_y1 or new_y2:
-            return False
+    # if s1 ==0 and s2 ==0:
+    #     if new_a or new_b or new_x1 or new_x2 or new_y1 or new_y2:
+    #         return False
 
 
     return True
