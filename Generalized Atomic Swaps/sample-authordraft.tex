@@ -111,6 +111,8 @@
 
 %%
 %% end of the preamble, start of the body of the document source.
+\newcommand{\com}[1]{\textcolor{red}{\textit{#1}}}
+
 \begin{document}
 
 %%
@@ -216,13 +218,6 @@
     % In this paper we present novel protocol to conduct atomic swaps without time locking. We further generalize the notion of the swap involving multiple party over the two ledger. While Hash-Time lock contracts are not sufficient in generealized case, we present a modified hash time lock contract that can handle byzantine adversary.
 
 
-    
-  A clear and well-documented \LaTeX\ document is presented as an
-  article formatted for publication by ACM in a conference proceedings
-  or journal publication. Based on the ``acmart'' document class, this
-  article presents and explains many of the common variations, as well
-  as many of the formatting elements an author may use in the
-  preparation of the documentation of their work.
 \end{abstract}
 
 %%
@@ -285,24 +280,20 @@
 %% information and builds the first part of the formatted document.
 \maketitle
 
+\section{Introduction}
+\textcolor{violet}{The aim of this section is to explain atomic swaps}
+
+The advent of Bitcoin in 2009 marked a significant milestone in the realm of digital currency, revolutionizing financial transactions globally. Subsequently, a multitude of Distributed Ledger Technologies (DLTs) emerged, each with its unique features. Interoperability between these diverse ledgers became a paramount requirement, and one of the instrumental approaches to achieving this is through the implementation of atomic swaps.
+
+In essence, an atomic swap serves as a protocol facilitating the seamless exchange of assets between two parties operating on distinct blockchains. At its core, a "fair" atomic swap protocol is designed to eliminate any incentives for either party to deviate from the established protocol. Crucially, if one party does deviate, the other party does not suffer any disadvantage. This guarantees that the outcome of the exchange is either successful, with both parties obtaining the desired assets, or unsuccessful, with both retaining their original assets.
+
+Importantly, an atomic swap ensures that, at no point, does one party gain control over both assets. This inherent characteristic enhances the security and trustworthiness of the exchange process. Additionally, the protocol prevents the creation of a deadlock situation where assets are perpetually locked, ensuring a smooth and reliable execution of the swap.
+
+
+
+\com{What is the fair part in the protocol}
 \section{Motivation}
 \textbf{ Here there should be some data about the HTLC contracts and the swaps}
-ACM's consolidated article template, introduced in 2017, provides a
-consistent \LaTeX\ style for use across ACM publications, and
-incorporates accessibility and metadata-extraction functionality
-necessary for future Digital Library endeavors. Numerous ACM and
-SIG-specific \LaTeX\ templates have been examined, and their unique
-features incorporated into this single new template.
-
-If you are new to publishing with ACM, this document is a valuable
-guide to the process of preparing your work for publication. If you
-have published with ACM before, this document provides insight and
-instruction into more recent changes to the article template.
-
-The ``\verb|acmart|'' document class can be used to prepare articles
-for any ACM publication --- conference or journal, and for any stage
-of publication, from review to final ``camera-ready'' copy, to the
-author's own version, with {\itshape very} few changes to the source.
 
 \section{Template Overview}
 As noted in the introduction, the ``\verb|acmart|'' document class can
