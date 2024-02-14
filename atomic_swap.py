@@ -197,13 +197,13 @@ def is_valid_transition(from_state, to_state):
     # x2/y2 is revealed only if y1/x1 has already been revealed
     # if x2/y2 is revealed, then the contract should be frozen
 
-    if x2 == 0 and new_x2 ==1:
-        if not (s2==1 and new_s2 ==2):
-            return False
-
-    if y2 == 0 and new_y2 ==1:
-        if not (s1==1 and new_s1 ==2):
-            return False
+    # if x2 == 0 and new_x2 ==1:
+    #     if not (s2==1 and new_s2 ==2):
+    #         return False
+    #
+    # if y2 == 0 and new_y2 ==1:
+    #     if not (s1==1 and new_s1 ==2):
+    #         return False
 
     # if a or b is revealed, the contract should stop executing further
     if a ==1 :
