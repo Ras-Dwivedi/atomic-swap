@@ -112,7 +112,7 @@
 %%
 %% end of the preamble, start of the body of the document source.
 \newcommand{\com}[1]{\textcolor{red}{\textit{#1}}}
-
+\usepackage{lipsum}
 \begin{document}
 
 %%
@@ -210,8 +210,11 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-    Atomic swap is a protocol between two distrusted parties trying to swap two assets. The protocol ensures that if 1. If both the parties are to the protocol then the assets are swapped 2. If any or both the parties deviate from the protocol, then none of the parties end up being worse 3. No party can leave the other party in a deadlock, locking their asset. Moreover no party has any incentive to deviate from the protocol. 
-    HTLC traditionally has been restricted to two parties, each exchanging their goods. In this paper we exam,one a general form of HTLC contract. We still restrict ourself to two ledger, but in each ledger there is a group of parties with a set of assets, which they want to swap. We first show that the traditional HTLC breaks down in case of general transfer. We then provide a novel protocol for atomic swap in case of traditional swap between two parties. This protocol does not have the time locking. We then presents a modified HTLC protocol, based on this protocol that conducts swaps in general case, even when some of the parties are byzantine.
+A 2-party atomic cross-chain swap is a coordination task where two parties swap assets over two blockchains, for example, exchanging bitcoin for ether. The protocol guarantees three critical conditions: 1. Successful asset exchange occurs if both parties adhere to the protocol. 2. If any party deviates from the protocol, then no conforming party end up being worse. 3. The protocol ensures no party can leave the other in a perpetual deadlock, effectively locking their assets forever. Importantly, there is no incentive for any party to deviate from the protocol.
+
+Hash Time Lock Contracts (\textit{HTLC}) are widely used in 2-party atomic swaps. This paper focuses on Multiparty Atomic Swaps, where assets may be collectively owned, and multiple assets may be involved in an exchange.
+
+Our investigation reveals that the 2-party \textit{HTLC} framework breaks down when applied to multiparty swaps. Subsequently, we introduce a modified \textit{HTLC} protocol tailored for multiparty swaps, which requires $O(n)$ messages for an $n$-party swap. This new protocol addresses the complexities of multiparty exchanges, offering an efficient and secure solution for exchanging assets involving multiple parties. When reduced to 2-party, our protocol conducts atomic swaps without timelocks with similar message complexity as \textit{HTLC}.
     
     % In this paper,, we investigate the general form of HTLC. 
     % HTLC is a commonly used protocol for the atomic swap, which locks the assets for a time period.  
@@ -263,13 +266,13 @@
 %% A "teaser" image appears between the author and affiliation
 %% information and the body of the document, and typically spans the
 %% page.
-\begin{teaserfigure}
-  \includegraphics[width=\textwidth]{sampleteaser}
-  \caption{Seattle Mariners at Spring Training, 2010.}
-  \Description{Enjoying the baseball game from the third-base
-  seats. Ichiro Suzuki preparing to bat.}
-  \label{fig:teaser}
-\end{teaserfigure}
+%\begin{teaserfigure}
+%  \includegraphics[width=\textwidth]{sampleteaser}
+%  \caption{Seattle Mariners at Spring Training, 2010.}
+%  \Description{Enjoying the baseball game from the third-base
+%  seats. Ichiro Suzuki preparing to bat.}
+%  \label{fig:teaser}
+%\end{teaserfigure}
 
 \received{20 February 2007}
 \received[revised]{12 March 2009}
@@ -294,6 +297,94 @@ Importantly, an atomic swap ensures that, at no point, does one party gain contr
 \com{What is the fair part in the protocol}
 \section{Motivation}
 \textbf{ Here there should be some data about the HTLC contracts and the swaps}
+\com { Here should be a description of both version of atomic swaps}
+A number of blockchain and there by crypto currencies have been introduced since the bitcoin. Due to the sheer number of the blockchains and the cryptocurrency, it becomes necessary to make them interoperable. One of the ways to make the blockchains interoperable is through the relay chain, with the contract written in the mainchain. Cosmos hub and other operates in this fashion. This is workable because all the relay chain communicate to the mainchain and the mainchain has the way to know the status of the relay chain. \\
+But in case of the hetrogenous blockchain it is not possible. heterogenous blockchain have no way of communicating with each other and no way to verify the status of the contract or the account in other blockchain, except may be through some oracle. But then these oracle because external source of truth, which may be compromised. \\
+Atomic swap is the third way to make the blockchain interoperable. This method is typically used for the exchange of the token or the coin among the parties that have account on both the blockchain. Idea, is that eithere the swap should happen, or nothing should happen. One party should  not have any advantage over the other party. This party should not be able to gain control over both the asset, not it should be able to forcee the other party into  a deadlock situation thereby locking the funds. 
+\com{ use only of the following : token, funds or the coins}\\
+HTLC \cite{} is the most common way to create the atomic swap. Unfortunately, HTLC is limited to only two parties. But in general the swap may not be limited to two parties. For example we might have the generic situation where in Ledger $\mathcal{L}_1$ two parties $A$ and $B$ might both want to exchange the asset $\alpha$ and $\beta$ with $C$ on ledger $\mathcal{L}_2$ for the joint ownership of the asset $\gamma$. Now, if both $A$ and $B$ trust each other, the traditional HTLC is possible,  However if $A$ and $B$ are also distrusting party, then we show that the traditional HTLC fails. To overcome this problem we present a general version of the HTLC. \\
+
+\textbf{Organization of paper:} In this paper we fist show the scenario where the conventional HTLC fails. We then present a two-party HTLC protocol, which does not need any time locking. Building on this idea we presnet a generic n-party HTLC protocol. 
+\section{Background work}
+\com{Here should be the protocols for the background work}
+\begin{itemize}
+	\item Working of HTLC
+	In two party $HTLC$ both the parties Alice, $A$ and Bob $B$ has thee account on ledger $\mathcal{L}_1$ and $\mathcal{L}_2$. Alice wants to asset $\alpha$ on $\mathcal{L}_1$ for the asset $\beta$ on $\mathcal{L}_2$. \\
+	To faciliate the exchange, Alice creates a smart contract $\mathbb{S}_1$ and locks the asset $\alpha$. With secret $s$ and for the $\mathcal{N}$ blocks. Bob then verifies the contract on Ledger $\mathcal{L}_1$ and deploys the contract $\mathbb{S}_2$ on $\mathcal{L}_2$ which locks the Bob's asset $\beta$. Bob uses the same the secret hash to lock his asset, but his asset is locked for the lesser period of time, say $N-\delta$ block. 
+	When Alice sees the Bob's smart contract, she then unlocks the Bob's contract $\mathbb{S}_2$and takes posession of the asset $\beta$ on $\mathcal{L}_2$. Bob now knows the secret $s$ and can unlock the Alice's smart contract $\mathbb{s}_1$  and takes the asset $\alpha$. Here the time difference between the locks $\delta$ should be sufficient enough to Bob the confidence to claim asset $\alpha$ before the lock expires and the asset can be claimed again by Alice. Also, we assume that the transaction prepared are includded in the block, such that there is no denial of the service attack. Otherwise Bob can know the secret $s$ from the dropped transaction and claim Alice asset $\alpha$ without forfeiting his asset $\beta$ \\
+	
+	It is worth noting that \textit{HTLC} protocol requires that time locking in present at both the blockchain. Blockchain such as Moreo \cite{} does not have scripting language rich enough to create the time locks. It was shown by \cite{} that time locking is not required at both the ends, and with the use of adaptive signatures \cite{} one can conduct atomic swaps with the time locking at only one of the blockchain. 
+	
+%	But these protocols are restricted to the two-party atomic swap protocol. We are interested in more general case which we describe below. Let $ \mathcal{A} = {A1, A_2, ... A_m}$ be the parties interested in the atomic swap with $\mathcal{B}=B_1, B_2 ... B_n$ where $\mathcal{A}$ and $\mathcal{B}$ might not be mutually exclusive. Assets to be swapped are $\Alpha = {\alpha_1, \alpha_2, .... \alpha_m}$ be assets to be swappedd in ledger $\mathcal{L}_1$ and $\Beta = { \beta_1, \beta_2, ... \beta_m} $ be the assets that are to be swapped in ledger $\mathcal{L}_2$. Let $I_{ij}$ \\
+\com{Explain the need for the multiparty swap}
+	\begin{itemize}
+		\item Joint Ownership of assets
+		\item Portfolio rebalancing
+		\item Assembly line ? car parts + plus cash for car 
+	\end{itemize}
+	But these protocols are restricted to the two-party atomic swap protocol. We are interested in more general case which we describe below. Ledger $\mathcal{L}_1$ contains assets $ \mathbb{A}= \{\alpha_1, \alpha_2, ....., \alpha_m \}$ and ledger $\mathcal{L}_2$ contains assets $\mathbb{B} = \{\beta_1, \beta_2, ....., \beta_n \}$ which are to be swapped. Let the swap contains $p$ parties. Boolean $I_{\alpha}^{ij}$ is \textbf{True} if party $j$ was the initial owner of the asset $\alpha_i$, \textbf{False} otherwise. Similarly $I_{\beta}^{ij}$ is \textbf{True} if party $j$ was the initial owner of the asset $\beta_i$, \textbf{False} otherwise. Boolean $O_{\alpha}^{ij}$ is \textbf{True} if party $j$ is the final owner of the asset $\alpha_i$, \textbf{False} otherwise. Similarly $O_{\beta}^{ij}$ is \textbf{True} if party $j$ is the final owner of the asset $\beta_i$, \textbf{False} otherwise. 
+	
+	\com{Define the atomic swap}
+	A two party atomic swap is defined as follows.
+	Let $P$ and $Q$ be the two parties. $P$ owns the asset $i_P$ and $Q$ owns the asset $I_Q$. The swap is consider successful if at the end of the protocol $P$ possesses $I_Q$ and $Q$ possess $I_P$. The protocol is considered \textbf{fair} if either the swap completes or nothing happens at all
+	
+	A multiparty atomic swap is defined as follows. Let there be $m+n$ assets. Assets are owned by parties $\{j \}$ such that $I_{\alpha}^{ij=1}$. At the end of the swap, the owners of the asset $\alpha_i$ should be $O_{alpha}^{ij}$
+	
+
+	\item working of Generic swap by IBM guys
+	\item swapping protocol by Ras, Tushar and Sandeep
+\end{itemize}
+\section{Why two party HTLC does not work}
+Suppose a simple case of three party swap. Parties $A$ and $B$ owns asset $\alpha$ on ledger $\mathcal{L}_1$ and $C$ owns the asset $\gamma$ on ledger $\mathcal{L}_2$. $A$ and $B$ wants to exchange the joint ownership of $\alpha$ for the join ownership of $\gamma$, and $C$ wants to swap $\gamma$ for $\alpha$
+Suppose $A$ and $B$ generates a shared secret and use that to create the smart contract $\mathbb{S}_1$ and locks their asset $\alpha$. Now, if we assume that $B$ is malicious he may collude with $C$ and share the secret with $C$. $C$ in turn uses the secret to unlock the contract and claim $\alpha$ without even locking his asset $\gamma$. So, a single shared secret, does not work in case of shared asset.\\
+How about if we have two secret instead of one. Let us assume that $A$ and $B$ modifies the 2-party \textit{HTLC} and locks $\alpha$ with secrets $s_A$ and $s_B$. For $C$ to claim $\alpha$ he must know both $s_A$ and $s_B$. Assuming that at least one of $A$ and $B$ is honest, $C$ cannot claim $\alpha$ without actually knowing the secrets. So, he deploys the \textit{HTLC} contract locking the assets with the hash of $s_A$ and $s_B$. Without loss of generality, assume $B$ is malicious and has colluded with $C$. Now, $B$ waits for $A$ to first unlock the $C$'s smart contract. if $A$ does not unlocks first, then $B$ simply waits for the time lock to expire and thus not allowing the exchange to happen. In case $A$ reveals the secret $s_A$ first, $B$ still does not unlock the $C$'s smart contract, enabling $C$ to reclaim his asset after the time lock expires. But $B$ shares his secret $s_B$ privately with $C$ which allows $C$ to claim $\alpha$ without giving $\gamma$. 
+Thus a 2-party \textit{HTLC} does not work in the multiparty case.
+
+\cite{ibm} modified the HTLC contract using MPC. Here the secret is revealed simultaneously using MPC. This may result in significant cryptographic computational overhead. 
+\com{A Table to compare the algorithm, in terms of message and storage complexity}
+
+
+\section{A time lock free HTLC protocol}
+In this section we describe an optimized version of the time lock free protocol by \cite{}. In their protocol party $A$ owns $\alpha$ and $B$ owns $\beta$ and they wants to swap their assets
+The protocol works in 5 stages.
+\com{refined or optimized}
+\begin{enumerate}
+	\item\textbf{ exchange of hashes:}  $A$ and $B$ both generates the secrets $s_A, r_A$ and $s_B, r_B$ and exchanges the hashes of the secret over the private channel
+	\item \textbf{deployment of the contract:} Both $A$ and $B$ deploys the contract. $A$'s contract concerns the asset $\alpha$ and requires secrets $s_A$ and $s_B$ for successful transfer. It requires $r_A$ to quit the contract and $r_A, r_B$ to abort the contract. Quitting happens if $B$ has not commited for the exchange, and anort happens if $B$ has quit his contract after committing. 
+	\com {rephrase is needed}
+	\item \textbf{Freeze:} $B$ can freeze $A$'s contract by passing secret $s_B$ in to $A$'s contract on $\mathcal{L}_1$ . If $B$ freezes $A$'s contract, then $A$ cannot quit. Similary $A$ can freeze $B$'s contract by passing $s_A$ to $B$'s contract on $\mathcal{L}_2$. 
+	\item \textbf{exchange of asset :} Once $A$ knows about $s_B$, he can then pass $s_B$ to the $B$'s contract on $\mathcal{L}_2$.  and claim $\beta$, Similart $B$ can pass $s_A$ to $A$'s contract and claim $\alpha$
+	\item \textbf{quit and abort :} In case $B$ does not deploy his contract, $A$ can use $r_A$ on his smart contract on $\mathcal{L}_1$ and quit the swap. $A$ can only quit if his contract is not frozen. If frozen by $B$, $A$ should claim $B$. But in case $B$ freezes $A$'s contract, and quits his own, he would have to reveal $r_B$. by passing $r_B$ to his contract, $A$ can abort the swap. Knowing $r_B$ shows that $B$ has quit and hence $A$ should also quit. \\
+	\com{rephrase}
+	\com{comment on the optimization}\\
+	\com{Diagram is needed}
+	The original version of the protocol included two more secrets, each by $A$ and $B$, which was used to freeze the contract. We optimzed the secret by removing the redundant variables.
+
+	
+\end{enumerate}
+	We noted that this protocol also suffers from the same vulnerability in case of multi party swap. for example. Let $A$ and $B$ jointly owns $\alpha$ and $C$ owns $\gamma$ and they want to swap the assets. 	
+	\begin{itemize}
+		\item In case of shared secret between $A$ and $B$, $B$ can collude with $C$ allowing $C$ to quit his swap while claiming $\alpha$. It is worth noting that even when $C$ tries to claim $\alpha$ he has to reveal his own secrets. and if honest $A$ is quick enough, he can stop the unfair execution, by aborting as soon as $C$ quits. In case $C$ freezes the asset, then claiming $\beta$ before $C$ can quit. But, due to the network latency and congestion $C$ has a fair chance to claim $\alpha$ while retaining $\gamma$
+		\item In case $A$ and $B$ uses their individual secrets, the problem still persists like in the previous case. 
+		It has to be notes the $B$'s contract can only be frozen if both $s_A$ and $s_B$ is available. if this is not the case, and contract is frozen as soon as $A$ frozes $C$'s contract, then $B$ can choose not to reveal either of the secret and create a deadlock for $C$ as $C$ would not be able to claim $\alpha$ without knowing $s_B$ and she cannot abort without knowing $r_B$, both of which are controlled by $B$.
+	\end{itemize}
+
+\section{A generalized HTLC protocol}
+In this section we present a generalized HTLC protocol. Our protocol does not use MPC to generate a shared secret. 
+In this section we present a generalized atomic swap between $A$, $B$ jointly owning $\alpha$ and $C$ and $D$ jointly owning $\beta$\\
+\com{Explain who deploys the contract, and how is the asset locked. The best way is to transfer the asset first to the smart contract, and then apply the locking mechanism}\\
+\com{unlike freeze, which is \textit{AND} function, the quit and abort has to be \textit{OR} funciton}
+\begin{itemize}
+	\item Exchange of hashes: Each party selects two secrets $s_i$ and $r_i$ and calculates the hashes of them. These hashes are exchanged over the secure private channel
+	\item Deployment of the contract: A contract is deployed on $\mathcal{L}_1$ and $\mathcal{L}_2$ blockchain. First all the parties tranfer the ownership of the asset to the smart contract, while elucidating the rules for the transfer both in case of the success of the swap or in case swap is unsuccessful and the assets are send bvack to the orginal owner. This could be best represented in form of asset to initial and final owner mappings. \\
+	Contract is then locked with the hashes of the secrets of all the parites. Each sender and reciever is alloted two secret $(s_i, r_i)$, irrespective of the asset swapped. This is done to ensure that either all the swap happens at once or none of the swap happen. $s_i$ is needed to claim the asset, while $r_i$ is needed by the party $i$ to quit the protocol.
+	\item Freeze: In order to freeze the asset on $\mathcal{L}_1$ all the $s_j$ from receiver of the assets should be provided. All the receiver would freeze the contract one by one. Once all the receivers secrets are available, contract would be frozen. Once frozen, the sender cannot revert back and forfeit the swap. They can although abort the swap, but that can only be done once it is proven, that the contract $\mathbb{S}_2$ on $\mathcal{L}_@$ is in Quit state. If the contract $\mathbb{S}_2$  is Quit, then all the receivers secret $r_j$ is available and hence they can be used to prove that the receiving party has quit thee swap
+	\item Resolve: Resove protocol involves claiming of the asset. If $\mathcal{A}$ wants to claim the assets of $\mathcal{B}$ then each $p_i$ in $\mathbb{A}$ would have to invoke the resolve method of $\mathbb{S}_2$ on $\mathcal{L}_2$. Resolve method can only be invoked after freeze has been invoked on $\mathbb{S}_2$ . If the party $p_i \in \mathcal{B}$ wants to invoke resolve in $\mathbb{S}_1$ then they would have to invoke revoke using their own $s_{2i}$. Note that resolve and quit reveals all the $s_i$.
+	
+	\com{need for better wordings, and better and consistent symbols}
+	
+	
+\end{itemize}
 
 \section{Template Overview}
 As noted in the introduction, the ``\verb|acmart|'' document class can
