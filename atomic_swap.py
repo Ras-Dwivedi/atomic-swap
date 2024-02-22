@@ -5,11 +5,11 @@ def add_states_to_kripke(kripke):
 
     for a in [0, 1]:
         for b in [0, 1]:
-                for x2 in [0, 1]:
-                        for y2 in [0, 1]:
+                for x in [0, 1]:
+                        for y in [0, 1]:
                             for s1 in range(4):
                                 for s2 in range(4):
-                                    state = (a, b, x2, y2, s1, s2)
+                                    state = (a, b, x, y, s1, s2)
                                     # Label initial stat
                                     if s1==0:
                                         if s2==0:
@@ -52,19 +52,19 @@ def get_changed_variables(from_state, to_state):
     # Check for changes in each component of the states
     for i, (from_value, to_value) in enumerate(zip(from_state, to_state)):
         if from_value != to_value:
-            variable_name = ['a', 'b', 'x2', 'y2', 's1', 's2'][i]
+            variable_name = ['a', 'b', 'x', 'y', 's1', 's2'][i]
             changed_variables[variable_name] = (from_value, to_value)
 
     return changed_variables
 
-def is_valid_transition(from_state, to_state):
+def is_valid_transition(from_state, to_state) -> bool:
     """
     the idea is that there are only certain set of the transition possible. 
     all other transition needs to be avoided. 
     default response is true. we are checking certain false transition
     """
-    a, b, x2, y2, s1, s2 = from_state
-    new_a, new_b, new_x2, new_y2, new_s1, new_s2 = to_state
+    a, b, x, y, s1, s2 = from_state
+    new_a, new_b, new_x, new_y, new_s1, new_s2 = to_state
 
     changes = get_changed_variables(from_state,to_state)
     keys = list(changes)
@@ -80,12 +80,12 @@ def is_valid_transition(from_state, to_state):
     # if y1 == 1 and new_y1 == 0:
     #     return False
 
-    # x2 cannot change from 1 to 0
-    if x2 == 1 and new_x2 == 0:
+    # x cannot change from 1 to 0
+    if x == 1 and new_x == 0:
         return False
 
-    # y2 cannot change from 1 to 0
-    if y2 == 1 and new_y2 == 0:
+    # y cannot change from 1 to 0
+    if y == 1 and new_y == 0:
         return False
 
     # a cannot change from 1 to 0
@@ -106,33 +106,33 @@ def is_valid_transition(from_state, to_state):
         return False
 
     # freezing is only possible when the secret are known and revealed    
-    # if s1 goes from 1 to 2, then x1, y1, y2 must also become 1
-    if s1 == 1 and new_s1 == 2 and new_y2 != 1:
+    # if s1 goes from 1 to 2, then x1, y1, y must also become 1
+    if s1 == 1 and new_s1 == 2 and new_y != 1:
         return False
 
     # if s2 goes from 1 to 2, then y1, x1, x2 must also become 1
-    if s2 == 1 and new_s2 == 2 and new_x2 != 1:
+    if s2 == 1 and new_s2 == 2 and new_x != 1:
         return False
 
 
     # to abort, one must know the secret of the other party
-    # if s1 goes from 2 to 0, then b must become 1
-    if s1 == 2 and new_s1 == 0 and new_b != 1:
+    # if s1 goes from 2 to 0, then b must be 1
+    if s1 == 2 and new_s1 == 0 and b != 1:
         return False
 
-    # if s2 goes from 2 to 0, then a must become 1
-    if s2 == 2 and new_s2 == 0 and new_a != 1:
+    # if s2 goes from 2 to 0, then a must be 1
+    if s2 == 2 and new_s2 == 0 and a != 1:
         return False
 
     # to get the coin, all the secret must be revealed
-    # if s1 goes from 2 to 3, then x1, x2, y1, y2 must also become 1
+    # if s1 goes from 2 to 3, then x1, x2, y1, y must also become 1
     # This needs rechecking
-    if s1 == 2 and new_s1 == 3 and (x2, y2) != (1, 1):
+    if s1 == 2 and new_s1 == 3 and (x, y) != (1, 1):
         return False
 
-    # if s2 goes from 2 to 3, then x1, x2, y1, y2 must also become 1
+    # if s2 goes from 2 to 3, then x1, x2, y1, y must also become 1
     # This needs rechecking
-    if s2 == 2 and new_s2 == 3 and (x2, y2) != (1,1):
+    if s2 == 2 and new_s2 == 3 and (x, y) != (1,1):
         return False
 
 
@@ -151,7 +151,7 @@ def is_valid_transition(from_state, to_state):
 
     if s2 == 1 and new_s2 == 3:
         return False
- 
+
      # from freeze on can only abort (return to 0) or resolve (move to 3)
     # not movement from 2 to 1
     if s1 == 2 and new_s1 == 1:
@@ -184,39 +184,39 @@ def is_valid_transition(from_state, to_state):
         if not (new_s2 == 0):
             return False
 
-    #if x2/y2 is revealed, either the x1/y1 is revealed in the same transaction, or the already revealed
+    #if x2/y is revealed, either the x1/y1 is revealed in the same transaction, or the already revealed
     # if x2==0 and new_x2 == 1:
     #     if not new_x1 ==1:
     #         return False
 
-    # if y2==0 and new_y2 == 1:
+    # if y==0 and new_y == 1:
     #     if not new_y1 ==1:
     #         return False
 
     #why is this condition forced, and not implicit
-    # x2/y2 is revealed only if y1/x1 has already been revealed
-    # if x2/y2 is revealed, then the contract should be frozen
+    # x2/y is revealed only if y1/x1 has already been revealed
+    # if x2/y is revealed, then the contract should be frozen
 
-    # if x2 == 0 and new_x2 ==1:
-    #     if not (s2==1 and new_s2 ==2):
-    #         return False
-    #
-    # if y2 == 0 and new_y2 ==1:
-    #     if not (s1==1 and new_s1 ==2):
-    #         return False
+    if x == 0 and new_x ==1:
+        if not (s2==1 and new_s2 ==2):
+            return False
+
+    if y == 0 and new_y ==1:
+        if not (s1==1 and new_s1 ==2):
+            return False
 
     # if a or b is revealed, the contract should stop executing further
-    if a ==1 :
+    if a ==1 or new_a == 1 :
         if not new_s1 == 0:
             return False
 
-    if b ==1:
+    if b ==1 or new_b == 1:
         if not new_s2 == 0:
             return False
 
     # unless contract are deployed, no value can change:
     # if s1 ==0 and s2 ==0:
-    #     if new_a or new_b or new_x1 or new_x2 or new_y1 or new_y2:
+    #     if new_a or new_b or new_x1 or new_x2 or new_y1 or new_y:
     #         return False
 
 
@@ -355,7 +355,10 @@ def stats(kripke):
 
 
 
-def count_states_with_labels(kripke, states_list):
+def count_states_with_labels(kripke, states_list) -> dict:
+    """
+    For the given state list, counts the number of the good, bad, and unknown states
+    """
     label_counts = {"good": 0, "bad": 0, "unknown": 0}
 
     for state in states_list:
@@ -365,6 +368,15 @@ def count_states_with_labels(kripke, states_list):
 
     return label_counts
 
+def get_states_with_labels(kripke, states_list, label) -> list:
+    labelled_state_list=[]
+    for state in states_list:
+        _label = kripke.get_label(state)
+        if _label == label:
+            labelled_state_list.append(state)
+
+    return labelled_state_list
+
 # Example usage:
 if __name__ == "__main__":
     # Create a Kripke structure
@@ -372,7 +384,9 @@ if __name__ == "__main__":
 
     # Add states to the Kripke structure
     total_states = add_states_to_kripke(kripke)
+    print("=========BAD STATES ===============")
     print(kripke.get_states_with_label("bad"))
+    print("=============================")
 
 
     # Print the Kripke structure
@@ -388,14 +402,23 @@ if __name__ == "__main__":
     label_good_states(kripke)
     
     stats(kripke)
-    print(kripke.get_label((0,0,0,0,0,0)))
+    # print("============== Reachable States =========")
+    if kripke.get_label((0,0,0,0,0,0)) != "good":
+        print(" Error: the initial state is not a good state")
+    # print(kripke.get_label((0,0,0,0,0,0)))
+    # print("==========================================")
 
 
     #if the state is bad, print the path
 
     states_reachable = kripke.find_reachable_states((0,0,0,0,0,0))
+    print("============== Reachable States =========")
     print(states_reachable)
+    print("==========================================")
     print(count_states_with_labels(kripke,states_reachable))
+
+    print("the bad state reached are")
+    print(get_states_with_labels(kripke, states_reachable, 'bad'))
 
    
 

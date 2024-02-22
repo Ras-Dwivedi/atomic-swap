@@ -5,6 +5,8 @@ This class models the generic Kripke structure with all the states and the trans
 date : 04/08/2023
 
 """
+from typing import Set, Any
+
 
 class PathNotFoundError(Exception):
     pass
@@ -94,7 +96,10 @@ class KripkeStructure:
 
         return states_with_label
 
-    def find_reachable_states(self, state):
+    def find_reachable_states(self, state) -> Set[Any]:
+        """
+        Returns the set of reachable states of the given state
+        """
         # Initialize a stack for DFS and a set to store visited states
         stack = []
         visited = set()
