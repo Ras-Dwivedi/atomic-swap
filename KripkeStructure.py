@@ -1,10 +1,12 @@
 """
-This class models the generic kripke structure with all the states and the transition relations
+This class models the generic Kripke structure with all the states and the transition relations
 
 @author: Ras Dwivedi
 date : 04/08/2023
 
 """
+from typing import Any, Set
+
 
 class PathNotFoundError(Exception):
     pass
@@ -94,7 +96,10 @@ class KripkeStructure:
 
         return states_with_label
 
-    def find_reachable_states(self, state):
+    def find_reachable_states(self, state) -> Set[Any] :
+        """
+        returns the set of reachable states from the given state
+        """
         # Initialize a stack for DFS and a set to store visited states
         stack = []
         visited = set()

@@ -15,12 +15,21 @@ def add_states_to_kripke(kripke):
                                     if s1==0:
                                         if s2==0:
                                             label = "good"
+                                        elif s2 == 2 and a == 0:
+                                            # case where s1 is not deployed and s2 is frozen for eternity
+                                            label = "bad"
                                         elif s2 == 3:
                                             label = "bad"
                                         else:
                                             label = "unknown"
                                     elif s1 ==1 :
                                         if s2 == 3:
+                                            label = "bad"
+                                        else:
+                                            label = "unknown"
+                                    elif s1 == 2:
+                                        if s2 == 0 and b == 0:
+                                            # case where s2 is not deployed and s1 is frozen for eternity
                                             label = "bad"
                                         else:
                                             label = "unknown"
@@ -169,6 +178,13 @@ def is_valid_transition(from_state, to_state):
         if new_s2 != 3:
             return False
 
+    # y1 and x1 can only be revealed if the other contract has been instantiated
+    if x1 == 0 and new_x1 == 1:
+        if s2 == 0:
+            return False
+    if y1 == 0 and new_y1 == 1:
+        if s1 == 0:
+            return False
 
     # practical cases
 
@@ -369,6 +385,15 @@ def count_states_with_labels(kripke, states_list):
 
     return label_counts
 
+def get_states_with_labels(kripke, states_list, label) -> list:
+    labelled_state_list=[]
+    for state in states_list:
+        _label = kripke.get_label(state)
+        if _label == label:
+            labelled_state_list.append(state)
+
+    return labelled_state_list
+
 # Example usage:
 if __name__ == "__main__":
     # Create a Kripke structure
@@ -397,9 +422,29 @@ if __name__ == "__main__":
 
     #if the state is bad, print the path
 
+    # states_reachable = kripke.find_reachable_states((0,0,0,0,0,0,0,0))
+    # print(states_reachable)
+    # print(count_states_with_labels(kripke,states_reachable))
+
+
+    stats(kripke)
+    # print("============== Reachable States =========")
+    if kripke.get_label((0,0,0,0,0,0,0,0)) != "good":
+        print(" Error: the initial state is not a good state")
+
+
+    #if the state is bad, print the path
+
     states_reachable = kripke.find_reachable_states((0,0,0,0,0,0,0,0))
+    print("============== Reachable States =========")
     print(states_reachable)
+    print("==========================================")
     print(count_states_with_labels(kripke,states_reachable))
 
+    print("the bad state reached are")
+    for state in get_states_with_labels(kripke, states_reachable, 'bad'):
+        print_state(state)
+        print(kripke.find_transition_path((0,0,0,0,0,0,0,0), state))
+        print("========")
    
 
