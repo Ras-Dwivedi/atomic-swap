@@ -117,3 +117,5 @@ class KripkeStructure:
                     stack.append(successor)
 
         return visited
+
+

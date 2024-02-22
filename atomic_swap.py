@@ -14,12 +14,21 @@ def add_states_to_kripke(kripke):
                                     if s1==0:
                                         if s2==0:
                                             label = "good"
+                                        elif s2 == 2 and a == 0:
+                                            # case where s1 is not deployed and s2 is frozen for eternity
+                                            label = "bad"
                                         elif s2 == 3:
                                             label = "bad"
                                         else:
                                             label = "unknown"
                                     elif s1 ==1 :
                                         if s2 == 3:
+                                            label = "bad"
+                                        else:
+                                            label = "unknown"
+                                    elif s1 ==2 :
+                                        if s2 == 0 and b == 0:
+                                            # case where s2 is not deployed and s1 is frozen for eternity
                                             label = "bad"
                                         else:
                                             label = "unknown"
@@ -146,10 +155,21 @@ def is_valid_transition(from_state, to_state) -> bool:
         return False
 
     # from 1 one cannot move to 3 directly
-    if s1 == 1 and new_s1 == 3:
+    # if s1 == 1 and new_s1 == 3:
+    #     return False
+    #
+    # if s2 == 1 and new_s2 == 3:
+    #     return False
+
+    # No matter how you reach S3, you should reveal x,y
+    # if s1 goes from 2 to 3, then x1, x2, y1, y must also become 1
+    # This needs rechecking
+    if new_s1 == 3 and (x, y) != (1, 1):
         return False
 
-    if s2 == 1 and new_s2 == 3:
+    # if s2 goes from 2 to 3, then x1, x2, y1, y must also become 1
+    # This needs rechecking
+    if new_s2 == 3 and (x, y) != (1,1):
         return False
 
      # from freeze on can only abort (return to 0) or resolve (move to 3)
@@ -336,7 +356,7 @@ def label_good_state(kripke, unknown_state):
 # Example usage:
 
 def print_state(state):
-    names = ['a', 'b', 'x2', 'y2', 's1', 's2']
+    names = ['a', 'b', 'x', 'y', 's1', 's2']
     # state = enumerate(_state)
     for i in range(len(names)):
         print(f' {names[i]}={state[i] }', end="")
@@ -418,7 +438,10 @@ if __name__ == "__main__":
     print(count_states_with_labels(kripke,states_reachable))
 
     print("the bad state reached are")
-    print(get_states_with_labels(kripke, states_reachable, 'bad'))
+    for state in get_states_with_labels(kripke, states_reachable, 'bad'):
+        print_state(state)
+        print(kripke.find_transition_path((0,0,0,0,0,0), state))
+        print("========")
 
    
 
